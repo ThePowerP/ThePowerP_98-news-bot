@@ -26,23 +26,23 @@ class Athena:
                     f'Retrasando ejecución del programa por {self.delay}s...')
                 sleep(self.delay)
 
-            newsInfo = Utility.GET(
+            self.newsInfo = Utility.GET(
                 self,
                 "https://fortnite-api.com/v2/news/br",
                 {"x-api-key": self.apiKey},
                 {"language": self.language},
             )
-            if newsInfo is not None:
-                newsInfo = json.loads(newsInfo)['data']
+            if self.newsInfo is not None:
+                self.newsInfo = json.loads(self.newsInfo)['data']
                 date = Utility.ISOtoHuman(
-                    self, newsInfo["date"].split("T")[0], self.language
+                    self, self.newsInfo["date"].split("T")[0], self.language
                 )
                 log.info(f'Buscando noticias del {date}')
                 print('Guardando imagen...')
-                url = newsInfo['motds'][0]['image']
+                url = self.newsInfo['motds'][0]['image']
                 r = requests.get(url, allow_redirects=True)
-                open("Imagenes/"+newsInfo['motds'][0]['id']+'.png', 'wb').write(r.content)
-                print("Imagen guardado: "+newsInfo['motds'][0]['id'])
+                open("Imagenes/"+self.newsInfo['motds'][0]['id']+'.png', 'wb').write(r.content)
+                print("Imagen guardado: "+self.newsInfo['motds'][0]['id'])
                 # try:
                 #     print('Guardando...' + newsInfo['motds'][0])
                 if self.twitterEnabled is True:
@@ -79,9 +79,9 @@ class Athena:
             log.critical(f'Error al autentificar con Twitter, {e}')
 
             return
-        body = newsInfo['motds'][0]['body']
+        body = self.newsInfo['motds'][0]['body']
         try:
-            with open(newsInfo['motds'][0]['id']+'.png', 'rb') as newsImage:
+            with open('Imagenes/'+self.newsInfo['motds'][0]['id']+'.png', 'rb') as newsImage:
                 twitterAPI.PostUpdate(body, media=newsImage)
             log.info('Tweet de las noticias enviado.')
         except Exception as e:
